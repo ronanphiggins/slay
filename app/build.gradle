@@ -5,8 +5,8 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "de.andreasschrade.androidtemplate"
-        minSdkVersion 14
+        applicationId "com.backendless.jinx"
+        minSdkVersion 23
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

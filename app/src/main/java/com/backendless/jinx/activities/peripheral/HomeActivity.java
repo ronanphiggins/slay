@@ -1,32 +1,31 @@
-package de.andreasschrade.androidtemplate.ui;
+package com.backendless.jinx.activities.peripheral;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import de.andreasschrade.androidtemplate.R;
-import de.andreasschrade.androidtemplate.ui.base.BaseActivity;
+import butterknife.ButterKnife;
 
-/**
- * This Activity provides several settings. Activity contains {@link PreferenceFragment} as inner class.
- *
- * Created by Andreas Schrade on 14.12.2015.
- */
-public class SettingsActivity extends BaseActivity {
+import com.backendless.jinx.R;
+import com.backendless.jinx.activities.base.BaseActivity;
+
+public class HomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_home);
+        ButterKnife.bind(this);
         setupToolbar();
     }
+
 
     private void setupToolbar() {
         final ActionBar ab = getActionBarToolbar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
+        setTitle("");
     }
 
     @Override
@@ -47,21 +46,11 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     protected int getSelfNavDrawerItem() {
-        return R.id.nav_settings;
+        return R.id.nav_samples;
     }
 
     @Override
     public boolean providesActivityToolbar() {
         return true;
-    }
-
-    public static class SettingsFragment extends PreferenceFragment {
-        public SettingsFragment() {}
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.settings_prefs);
-        }
     }
 }

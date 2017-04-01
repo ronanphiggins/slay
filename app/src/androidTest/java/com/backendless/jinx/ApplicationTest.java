@@ -1,4 +1,4 @@
-package de.andreasschrade.androidtemplate;
+package com.backendless.jinx;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

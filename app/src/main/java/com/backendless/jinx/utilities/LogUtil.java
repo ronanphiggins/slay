@@ -1,4 +1,4 @@
-package de.andreasschrade.androidtemplate.util;
+package com.backendless.jinx.utilities;
 
 import android.util.Log;
 
