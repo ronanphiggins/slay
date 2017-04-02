@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import butterknife.ButterKnife;
 
-import static com.backendless.jinx.utilities.LogUtil.makeLogTag;
+import static com.backendless.jinx.utilities.logging.LogUtil.makeLogTag;
 
 public class BaseFragment extends Fragment {
 

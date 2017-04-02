@@ -1,25 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.backendless.jinx">
-
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Jinx"
-        tools:replace="android:label"
-        android:theme="@style/Theme.Main">
-
-        <activity android:name="com.backendless.jinx.activities.peripheral.HomeActivity">
+        android:theme="@style/Theme.Main"
+        tools:replace="android:label">
+        <activity android:name=".activities.peripheral.HomeActivity">
+        </activity>
+        <activity
+            android:name=".activities.core.SettingsActivity"
+            android:label="Settings" />
+        <activity android:name=".activities.core.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.backendless.jinx.activities.core.SettingsActivity"
-            android:label="Settings" />
-
     </application>
 
 </manifest>

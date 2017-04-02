@@ -14,8 +14,8 @@ import com.backendless.jinx.R;
 import com.backendless.jinx.activities.core.SettingsActivity;
 import com.backendless.jinx.activities.peripheral.HomeActivity;
 
-import static com.backendless.jinx.utilities.LogUtil.logD;
-import static com.backendless.jinx.utilities.LogUtil.makeLogTag;
+import static com.backendless.jinx.utilities.logging.LogUtil.logD;
+import static com.backendless.jinx.utilities.logging.LogUtil.makeLogTag;
 
 public abstract class BaseActivity extends AppCompatActivity {
     private static final String TAG = makeLogTag(BaseActivity.class);

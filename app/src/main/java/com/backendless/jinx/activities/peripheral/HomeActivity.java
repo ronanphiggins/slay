@@ -12,8 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import butterknife.ButterKnife;
@@ -198,7 +196,7 @@ public class HomeActivity extends BaseActivity {
             if (v == null) {
                 LayoutInflater inflater = getLayoutInflater();
                 // normally use a viewholder
-                v = inflater.inflate(R.layout.test_card2, parent, false);
+                v = inflater.inflate(R.layout.swipe_card, parent, false);
             }
             //((TextView) v.findViewById(R.id.textView2)).setText(data.get(position));
             ImageView imageView = (ImageView) v.findViewById(R.id.offer_image);
