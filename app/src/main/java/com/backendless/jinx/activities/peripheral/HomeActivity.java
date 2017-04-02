@@ -1,9 +1,11 @@
 package com.backendless.jinx.activities.peripheral;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 
 import com.backendless.jinx.R;
 import com.backendless.jinx.activities.base.BaseActivity;
+import com.backendless.jinx.activities.core.LoginActivity;
 import com.daprlabs.aaron.swipedeck.SwipeDeck;
 
 import java.util.ArrayList;
@@ -34,6 +38,8 @@ public class HomeActivity extends BaseActivity {
     private Bitmap theBitmap;
     private Bitmap theBitmap2;
     private ArrayList<Bitmap> bitmapArrayList;
+
+    SharedPreferences prefs;
 
     //private CheckBox dragCheckbox;
 
@@ -64,6 +70,9 @@ public class HomeActivity extends BaseActivity {
         bitmapArrayList.add(theBitmap);
         bitmapArrayList.add(theBitmap2);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
 
 
 
@@ -84,12 +93,21 @@ public class HomeActivity extends BaseActivity {
             public void cardSwipedLeft(long stableId) {
                 Log.i("MainActivity", "card was swiped left, position in adapter: " + stableId);
 
+                //Boolean bo = prefs.getBoolean("pref_vi", true);
+
+                int in = prefs.getInt("pref_distance", 2);
+
+                Toast.makeText(HomeActivity.this, Integer.toString(in),
+                        Toast.LENGTH_LONG).show();
+
 
             }
 
             @Override
             public void cardSwipedRight(long stableId) {
                 Log.i("MainActivity", "card was swiped right, position in adapter: " + stableId);
+
+
 
             }
 
@@ -155,7 +173,7 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected int getSelfNavDrawerItem() {
-        return R.id.nav_samples;
+        return R.id.nav_home;
     }
 
     @Override

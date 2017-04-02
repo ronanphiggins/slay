@@ -1,18 +1,39 @@
 package com.backendless.jinx.activities.base;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import com.backendless.Backendless;
+import com.backendless.async.callback.AsyncCallback;
+import com.backendless.exceptions.BackendlessFault;
 import com.backendless.jinx.R;
+import com.backendless.jinx.activities.core.LoginActivity;
 import com.backendless.jinx.activities.core.SettingsActivity;
 import com.backendless.jinx.activities.peripheral.HomeActivity;
+import com.backendless.jinx.utilities.dialogs.CustomDialogClass;
+import com.backendless.jinx.utilities.strings.StringUtil;
+import com.backendless.persistence.local.UserIdStorageFactory;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.Target;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.backendless.jinx.utilities.logging.LogUtil.logD;
 import static com.backendless.jinx.utilities.logging.LogUtil.makeLogTag;
@@ -25,11 +46,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private Toolbar actionBarToolbar;
 
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         setupNavDrawer();
     }
+
+
 
     /**
      * Sets up the navigation drawer.
@@ -48,6 +72,52 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         logD(TAG, "navigation drawer setup finished");
+
+
+        UserIdStorageFactory.instance().init(this);
+        String userId = UserIdStorageFactory.instance().getStorage().get();
+        Log.i("backendless", userId);
+        final String userIdSplit = StringUtil.splitString(userId);
+
+        String url = getString(R.string.backendless_api) + getString(R.string.app_id) + "/" + getString(R.string.app_version) + getString(R.string.app_media) + userIdSplit + getString(R.string.file_format);
+
+        Log.i("backendless", url);
+
+        View hView =  navigationView.getHeaderView(0);
+        final CircleImageView civProfilePic = (CircleImageView)hView.findViewById(R.id.navbarpic);
+        final ProgressBar progressBar = (ProgressBar)hView.findViewById(R.id.progress);
+        Glide.with(this)
+                .load(url)
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .fitCenter().into(civProfilePic);
+
+        /*final ImageView img = (ImageView)hView.findViewById(R.id.navbarpic);
+        Glide.with(this).load(url).asBitmap().fitCenter().into(new BitmapImageViewTarget(img) {
+            @Override
+            protected void setResource(Bitmap resource) {
+
+                RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(getApplicationContext().getResources(), resource);
+                circularBitmapDrawable.setCircular(true);
+                img.setImageDrawable(circularBitmapDrawable);
+            }
+        });*/
+
+
+
+
+
     }
 
     /**
@@ -96,11 +166,31 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private void goToNavDrawerItem(int item) {
         switch (item) {
-            case R.id.nav_samples:
+            case R.id.nav_home:
                 startActivity(new Intent(this, HomeActivity.class));
                 break;
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.nav_logout:
+                final CustomDialogClass cdd = new CustomDialogClass(BaseActivity.this);
+                cdd.progressDialog("Signing off..");
+                Backendless.UserService.logout(new AsyncCallback<Void>()
+
+                {
+                    public void handleResponse (Void response)
+                    {
+                        cdd.checkDialog();
+                        Log.i("backendless", "logged out");
+                        startActivity(new Intent(BaseActivity.this, LoginActivity.class));
+                    }
+
+                    public void handleFault(BackendlessFault fault) {
+                        cdd.checkDialog();
+                        Log.i("backendless", "logout failed");
+
+                    }
+                });
                 break;
         }
     }

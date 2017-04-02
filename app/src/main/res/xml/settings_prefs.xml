@@ -1,22 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sample="http://schemas.android.com/apk/res-auto">
 
-    <CheckBoxPreference
-        android:key="@string/pref_settings_1_key"
-        android:title="@string/pref_settings_1_title"
-        android:summary="@string/pref_settings_1_description"
-        android:defaultValue="false" />
+    <PreferenceCategory android:title="Who can see your profile?">
 
-    <CheckBoxPreference
-        android:key="@string/pref_settings_2_key"
-        android:title="@string/pref_settings_2_title"
-        android:summary="@string/pref_settings_2_description"
-        android:defaultValue="true" />
+        <SwitchPreference
+            android:key="pref_visible"
+            android:title="Public Profile"
+            android:defaultValue="true" />
 
-    <CheckBoxPreference
-        android:key="@string/pref_settings_3_key"
-        android:title="@string/pref_settings_3_title"
-        android:summary="@string/pref_settings_3_description"
-        android:defaultValue="false" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="What gender are you looking for?">
+
+        <ListPreference
+            android:key="pref_seeking"
+            android:title="Seeking"
+            android:entries="@array/gender_titles"
+            android:entryValues="@array/gender_values"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="What distance to search for?">
+
+
+        <com.pavelsikun.seekbarpreference.SeekBarPreference
+            android:key="pref_distance"
+            android:title="Distance"
+            android:enabled="true"
+            android:defaultValue="2"
+
+            sample:msbp_minValue="2"
+            sample:msbp_maxValue="50"
+            sample:msbp_interval="1"
+            sample:msbp_measurementUnit="km"
+            sample:msbp_dialogEnabled="false"/>
+
+
+
+    </PreferenceCategory>
+
+
+
+
+
 
 </PreferenceScreen>

@@ -11,6 +11,15 @@
     <string name="samples_hint_email">E-Mail</string>
 
 
+    <string name="backendless_api">https://api.backendless.com/</string>
+    <string name="app_id">18FCAF87-2377-951A-FFFF-0B2B42BC0E00</string>
+    <string name="app_secret">83373DCA-112B-89AF-FF95-3B3D7202DB00</string>
+    <string name="app_version">v1</string>
+    <string name="app_media">/files/media/</string>
+    <string name="file_format">.png</string>
+
+
+
     <string name="navigation_title">My navigation title</string>
     <string name="navigation_quotes">Quotes</string>
     <string name="navigation_samples">Samples</string>
