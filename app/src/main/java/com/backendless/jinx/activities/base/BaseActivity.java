@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.backendless.Backendless;
 import com.backendless.async.callback.AsyncCallback;
@@ -102,6 +103,23 @@ public abstract class BaseActivity extends AppCompatActivity {
                     }
                 })
                 .fitCenter().into(civProfilePic);
+
+        civProfilePic.setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+
+
+                Toast.makeText(getApplicationContext(), "nav image clicked",
+                        Toast.LENGTH_LONG).show();
+
+
+            }
+        });
+
+
+
 
         /*final ImageView img = (ImageView)hView.findViewById(R.id.navbarpic);
         Glide.with(this).load(url).asBitmap().fitCenter().into(new BitmapImageViewTarget(img) {

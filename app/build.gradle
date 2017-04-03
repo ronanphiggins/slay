@@ -33,4 +33,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.pavelsikun:material-seekbar-preference:2.3.0+'
+    compile 'com.soundcloud.android:android-crop:1.0.1@aar'
 }
