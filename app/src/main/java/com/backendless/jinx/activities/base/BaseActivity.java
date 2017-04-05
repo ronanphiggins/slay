@@ -1,11 +1,8 @@
 package com.backendless.jinx.activities.base;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -14,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,14 +20,14 @@ import com.backendless.exceptions.BackendlessFault;
 import com.backendless.jinx.R;
 import com.backendless.jinx.activities.core.LoginActivity;
 import com.backendless.jinx.activities.core.SettingsActivity;
-import com.backendless.jinx.activities.peripheral.HomeActivity;
+import com.backendless.jinx.activities.peripheral.FindDateActivity;
+import com.backendless.jinx.activities.peripheral.ManageDateActivity;
 import com.backendless.jinx.utilities.dialogs.CustomDialogClass;
 import com.backendless.jinx.utilities.strings.StringUtil;
 import com.backendless.persistence.local.UserIdStorageFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.Target;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -184,8 +180,11 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private void goToNavDrawerItem(int item) {
         switch (item) {
-            case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
+            case R.id.nav_find_date:
+                startActivity(new Intent(this, FindDateActivity.class));
+                break;
+            case R.id.nav_manage_dates:
+                startActivity(new Intent(this, ManageDateActivity.class));
                 break;
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));

@@ -20,11 +20,10 @@ import com.backendless.exceptions.BackendlessFault;
 import com.backendless.files.BackendlessFile;
 import com.backendless.jinx.R;
 import com.backendless.jinx.activities.base.BaseActivity;
-import com.backendless.jinx.activities.peripheral.HomeActivity;
+import com.backendless.jinx.activities.peripheral.FindDateActivity;
 import com.backendless.jinx.utilities.bitmaps.bitmapUtil;
 import com.backendless.jinx.utilities.dialogs.CustomDialogClass;
 import com.backendless.persistence.local.UserIdStorageFactory;
-import com.bumptech.glide.Glide;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
@@ -163,7 +162,7 @@ public class SettingsActivity extends BaseActivity {
 
                                         cdd.checkDialog();
 
-                                        startActivity(new Intent(SettingsActivity.this, HomeActivity.class));
+                                        startActivity(new Intent(SettingsActivity.this, FindDateActivity.class));
                                         //finish();
 
 

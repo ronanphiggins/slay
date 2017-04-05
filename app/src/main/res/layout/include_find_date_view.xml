@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
 
-            swipedeck:max_visible="2"
+            swipedeck:max_visible="20"
             swipedeck:card_spacing="15dp"
             swipedeck:swipe_enabled="true"/>
 

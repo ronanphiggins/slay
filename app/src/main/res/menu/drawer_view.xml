@@ -3,15 +3,15 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_home"
-            android:icon="@drawable/home"
-            android:title="Home" />
+            android:id="@+id/nav_find_date"
+            android:icon="@drawable/heart"
+            android:title="Find a Date" />
 
         <item
-            android:id="@+id/nav_bids"
-            android:icon="@drawable/person"
-            android:title="Bids"
-            android:enabled="false"/>
+            android:id="@+id/nav_manage_dates"
+            android:icon="@drawable/dates"
+            android:title="Manage Dates" />
+
 
         <item
             android:id="@+id/nav_wall_of_shame"

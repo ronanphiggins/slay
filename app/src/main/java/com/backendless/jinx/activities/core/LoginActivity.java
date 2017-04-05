@@ -1,6 +1,8 @@
 package com.backendless.jinx.activities.core;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,11 +13,10 @@ import android.widget.Toast;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
-import com.backendless.DeviceRegistration;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.jinx.R;
-import com.backendless.jinx.activities.peripheral.HomeActivity;
+import com.backendless.jinx.activities.peripheral.FindDateActivity;
 import com.backendless.jinx.utilities.dialogs.CustomDialogClass;
 import com.backendless.jinx.utilities.ui.WindowUtil;
 
@@ -26,6 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView mButtonCancel;
     private TextView mButtonLogon;
     private TextView mButtonRegister;
+    private SharedPreferences prefs;
+    private Boolean activeDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +40,25 @@ public class LoginActivity extends AppCompatActivity {
         Backendless.initApp(this, getString(R.string.app_id), getString(R.string.app_secret), getString(R.string.app_version));
         Log.i("backendless", "backendless successfully initialised");
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        activeDate = prefs.getBoolean("dateActive_pref", false);
+
         if (Backendless.UserService.loggedInUser() == "") { Log.i("backendless", "Logged out"); }
-        else { startActivity(new Intent(LoginActivity.this, HomeActivity.class)); }
+        else {
+
+
+            if (activeDate) {
+
+
+                //startActivity(new Intent(LoginActivity.this, PostDateActivity.class));
+
+            } else {
+
+                startActivity(new Intent(LoginActivity.this, FindDateActivity.class));
+
+            }
+
+        }
 
 
         mUsernameEditText = (EditText) findViewById(R.id.editText);
@@ -75,8 +95,10 @@ public class LoginActivity extends AppCompatActivity {
                         {
                             Log.i("backendless", "login success");
 
+                            prefs.edit().putBoolean("dateActive_pref", Boolean.valueOf(user.getProperty("dateActive").toString())).commit();
+
                             cdd.checkDialog();
-                            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                            startActivity(new Intent(LoginActivity.this, FindDateActivity.class));
 
 
 
