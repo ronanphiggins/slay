@@ -15,6 +15,9 @@
         android:label="Jinx"
         android:theme="@style/Theme.Main"
         tools:replace="android:label">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD7oezpWuqCUaV-ZxMOLLmBzh21wjjBKN0" />
         <activity
             android:name=".activities.peripheral.FindDateActivity"
             android:screenOrientation="portrait" />

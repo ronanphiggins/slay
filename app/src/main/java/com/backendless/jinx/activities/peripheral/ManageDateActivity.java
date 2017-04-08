@@ -1,9 +1,12 @@
 package com.backendless.jinx.activities.peripheral;
 
+import android.animation.IntEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -19,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -35,6 +39,15 @@ import com.backendless.persistence.local.UserIdStorageFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.daprlabs.aaron.swipedeck.SwipeDeck;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,11 +56,13 @@ import java.util.List;
 import butterknife.ButterKnife;
 
 
-public class ManageDateActivity extends BaseActivity {
+public class ManageDateActivity extends BaseActivity implements OnMapReadyCallback {
 
 
 
     private SharedPreferences prefs;
+
+    private GoogleMap mMap;
 
 
 
@@ -58,68 +73,15 @@ public class ManageDateActivity extends BaseActivity {
         ButterKnife.bind(this);
         setupToolbar();
 
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-        /*Backendless.Persistence.of(Dates.class).findById("C6FF2152-8E96-F824-FF17-16ACA7D9EF00", new AsyncCallback<Dates>() {
-            @Override
-            public void handleResponse(Dates date) {
 
-
-                Log.i("backendless", "date id =" + date.getObjectId());
-
-                BackendlessUser[] owner = date.getOwner();
-                for (BackendlessUser user : owner) {
-
-                    Log.i("backendless", "gender =" + String.valueOf(user.getProperty("gender")));
-
-                }
-
-
-
-            }
-
-            @Override
-            public void handleFault(BackendlessFault backendlessFault) {
-
-
-            }
-        });*/
-
-        String whereClause = "gender = 1";
-        BackendlessDataQuery dataQuery = new BackendlessDataQuery();
-        dataQuery.setWhereClause( whereClause );
-
-        Backendless.Persistence.of( Dates.class ).find( dataQuery, new AsyncCallback<BackendlessCollection<Dates>>(){
-
-
-            @Override
-            public void handleResponse( BackendlessCollection<Dates> dates )
-            {
-
-                Iterator<Dates> iterator = dates.getCurrentPage().iterator();
-
-                while (iterator.hasNext()) {
-
-                    Dates date = iterator.next();
-
-                    Log.i("backendless", "found date id =" + date.getObjectId());
-
-
-
-                }
-
-            }
-            @Override
-            public void handleFault( BackendlessFault fault )
-            {
-
-
-            }
-
-
-        });
 
 
 
@@ -158,6 +120,63 @@ public class ManageDateActivity extends BaseActivity {
     @Override
     public boolean providesActivityToolbar() {
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        // Add a marker in Sydney, Australia, and move the camera.
+        LatLng sydney = new LatLng(-34, 151);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney")).setDraggable(true);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(11.0f));
+
+        final Circle circle = mMap.addCircle(new CircleOptions().center(sydney)
+                .strokeColor(Color.parseColor("#C63D0F")).radius(100));
+
+        final ValueAnimator vAnimator = new ValueAnimator();
+        vAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        vAnimator.setRepeatMode(ValueAnimator.RESTART);  /* PULSE */
+        vAnimator.setIntValues(0, 100);
+        vAnimator.setDuration(5000);
+        vAnimator.setEvaluator(new IntEvaluator());
+        vAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        vAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float animatedFraction = valueAnimator.getAnimatedFraction();
+                // Log.e("", "" + animatedFraction);
+                circle.setRadius(animatedFraction * 7000);
+            }
+        });
+        vAnimator.start();
+
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.d("System out", "onMarkerDragStart..."+arg0.getPosition().latitude+"..."+arg0.getPosition().longitude);
+                vAnimator.cancel();
+                circle.remove();
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onMarkerDragEnd(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.d("System out", "onMarkerDragEnd..."+arg0.getPosition().latitude+"..."+arg0.getPosition().longitude);
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0.getPosition()));
+            }
+
+            @Override
+            public void onMarkerDrag(Marker arg0) {
+                // TODO Auto-generated method stub
+                Log.i("System out", "onMarkerDrag...");
+            }
+        });
     }
 
 }

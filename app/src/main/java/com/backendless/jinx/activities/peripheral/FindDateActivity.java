@@ -1,6 +1,7 @@
 package com.backendless.jinx.activities.peripheral;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import butterknife.ButterKnife;
@@ -42,9 +44,14 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.daprlabs.aaron.swipedeck.SwipeDeck;
 
+import org.json.JSONObject;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class FindDateActivity extends BaseActivity {
@@ -57,13 +64,14 @@ public class FindDateActivity extends BaseActivity {
 
     private ArrayList<Dates> datesArray;
 
-    private Bitmap theBitmap;
-    //private Bitmap theBitmap2;
-    //private ArrayList<Bitmap> bitmapArrayList;
+    private ArrayList<String> dateholder;
+
+    private String prefGender;
+    private int prefDistance;
+
 
     private SharedPreferences prefs;
 
-    //private CheckBox dragCheckbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,34 +82,89 @@ public class FindDateActivity extends BaseActivity {
 
 
         cardStack = (SwipeDeck) findViewById(R.id.swipe_deck);
-        //dragCheckbox = (CheckBox) findViewById(R.id.checkbox_drag);
 
-        /*testData = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            testData.add(String.valueOf(i));
-        }*/
-
-        //theBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.selfie);
-        //theBitmap2 = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.selfie2);
 
         datesArray = new ArrayList<Dates>();
 
-        /*bitmapArrayList = new ArrayList<Bitmap>();
-        bitmapArrayList.add(theBitmap);
-        bitmapArrayList.add(theBitmap2);
-        bitmapArrayList.add(theBitmap);
-        bitmapArrayList.add(theBitmap2);
-        bitmapArrayList.add(theBitmap);
-        bitmapArrayList.add(theBitmap2);*/
+        dateholder = new ArrayList<String>();
+
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefGender = prefs.getString("pref_seeking", "1");
+
+        prefDistance = prefs.getInt("pref_distance", 1);
 
 
-        String st = prefs.getString("pref_seeking", "1");
+        findDates();
 
-        int dis = prefs.getInt("pref_distance", 1);
 
-        String whereClause = "distance( 53.348313, -6.281905, coordinates.latitude, coordinates.longitude ) < mi(" + String.valueOf(dis) + ") " + "and gender = " + st;
+
+        cardStack.setCallback(new SwipeDeck.SwipeDeckCallback() {
+            @Override
+            public void cardSwipedLeft(long stableId) {
+                Log.i("MainActivity", "card was swiped left, position in adapter: " + stableId);
+
+
+                checkAdapter();
+
+                Log.i("backendless", adapter.getUserId((int)stableId));
+
+
+
+            }
+
+            @Override
+            public void cardSwipedRight(long stableId) {
+                Log.i("MainActivity", "card was swiped right, position in adapter: " + stableId);
+
+                checkAdapter();
+
+
+
+            }
+
+
+        });
+
+        cardStack.setLeftImage(R.id.left_image);
+        cardStack.setRightImage(R.id.right_image);
+
+
+    }
+
+    private void checkAdapter() {
+
+
+
+        if (cardStack.getChildCount() == 1) {
+
+
+            Toast.makeText(getApplicationContext(), "swipedeckfinished",
+                    Toast.LENGTH_LONG).show();
+
+            findDates();
+
+
+        }
+
+
+    }
+
+
+    private void setupToolbar() {
+        final ActionBar ab = getActionBarToolbar();
+        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
+        ab.setDisplayHomeAsUpEnabled(true);
+        setTitle("");
+    }
+
+
+    private void findDates() {
+
+
+
+
+        String whereClause = "likers.objectId = '" + UserIdStorageFactory.instance().getStorage().get() + "'";
         BackendlessDataQuery dataQuery = new BackendlessDataQuery( whereClause );
         QueryOptions queryOptions = new QueryOptions();
         queryOptions.setRelationsDepth( 1 );
@@ -121,259 +184,103 @@ public class FindDateActivity extends BaseActivity {
 
                     Dates date = iterator.next();
 
-                    datesArray.add(date);
+                    //datesArray.add(date);
+
+                    dateholder.add(date.getObjectId());
 
 
                 }
 
-                adapter = new SwipeDeckAdapter(datesArray, FindDateActivity.this);
-                if(cardStack != null){
+                StringBuilder builder = new StringBuilder();
+                int count = 1;
+                for (String value : dateholder) {
+                    builder.append("'");
+                    builder.append(value);
+                    builder.append("'");
+                    if (count != dateholder.size()) {
+                        builder.append(",");
+                    }
 
-
-                    cardStack.setVisibility(View.INVISIBLE);
-                    cardStack.setAdapter(adapter);
-
+                    count++;
 
                 }
 
 
-
-            }
-            @Override
-            public void handleFault( BackendlessFault fault )
-            {
+                Log.i("backendless", builder.toString());
 
 
-            }
+                String whereClause = "objectId NOT IN (" + builder.toString() + ") and gender = " + prefGender + "and distance( 53.348313, -6.281905, coordinates.latitude, coordinates.longitude ) < mi(" + String.valueOf(prefDistance) + ")";
+                BackendlessDataQuery dataQuery = new BackendlessDataQuery( whereClause );
+                QueryOptions queryOptions = new QueryOptions();
+                queryOptions.setRelationsDepth( 1 );
+                dataQuery.setQueryOptions( queryOptions );
+
+                Backendless.Persistence.of( Dates.class ).find( dataQuery, new AsyncCallback<BackendlessCollection<Dates>>(){
 
 
-        });
+                    @Override
+                    public void handleResponse( final BackendlessCollection<Dates> dates )
+                    {
 
-        /*Backendless.Persistence.of( Dates.class ).find( dataQuery, new AsyncCallback<BackendlessCollection<Dates>>(){
+                        Iterator<Dates> iterator = dates.getCurrentPage().iterator();
+
+                        Log.i("backendless", "dateholder success");
 
 
-            @Override
-            public void handleResponse( final BackendlessCollection<Dates> dates )
-            {
 
-                Iterator<Dates> iterator = dates.getCurrentPage().iterator();
+                        while (iterator.hasNext()) {
 
-                int addContentCounter = 1;
+                            Dates date = iterator.next();
 
-                while (iterator.hasNext()) {
+                            datesArray.add(date);
 
-                    final Dates date = iterator.next();
 
-                    Log.i("backendless", "found date id =" + date.getObjectId());
 
-                    String userId = "";
+                        }
 
-                    BackendlessUser[] owner2 = date.getOwner();
-                    for (BackendlessUser user : owner2) {
+                        adapter = new SwipeDeckAdapter(datesArray, FindDateActivity.this);
+                        if(cardStack != null){
 
-                        userId = user.getUserId();
+
+                            cardStack.setVisibility(View.INVISIBLE);
+                            cardStack.setAdapter(adapter);
+
+
+                        }
+
+
+
+                    }
+                    @Override
+                    public void handleFault( BackendlessFault fault )
+                    {
+
+                        Log.i("backendless", fault.getMessage().toString());
+
 
                     }
 
 
-                    Log.i("backendless", userId);
-                    final String userIdSplit = StringUtil.splitString(userId);
-
-                    final String convert = String.valueOf(addContentCounter);
-
-                    final int nonconvert = addContentCounter;
-
-                    final String url = getString(R.string.backendless_api) + getString(R.string.app_id) + "/" + getString(R.string.app_version) + getString(R.string.app_media) + userIdSplit + getString(R.string.file_format);
-
-
-                    new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            if (Looper.myLooper() == null)
-                            {
-                                Looper.prepare();
-                            }
-                            try {
-                                theBitmap = Glide.
-                                        with(FindDateActivity.this).
-                                        load(url).
-                                        asBitmap().
-                                        into(400, 400).
-                                        get();
-                            } catch (final ExecutionException e) {
-
-                            } catch (final InterruptedException e) {
-
-                            }
-                            return null;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Void dummy) {
-                            if (null != theBitmap) {
-
-                                Log.i("backendless", "bitmap is not null");
-
-                                BackendlessUser[] owner = date.getOwner();
-                                for (BackendlessUser user : owner) {
-
-                                    Log.i("backendless", "gender =" + String.valueOf(user.getProperty("gender")));
-
-                                    DeckContent.addItem(new DeckContent.DeckItem(String.valueOf(convert), user.getProperty("name").toString(), "27", theBitmap));
-
-                                }
-
-                                if (dates.getTotalObjects() == nonconvert) {
-
-
-                                    adapter = new SwipeDeckAdapter(DeckContent.ITEMS, FindDateActivity.this);
-                                    if(cardStack != null){
-
-                                        cardStack.setAdapter(adapter);
-
-
-                                    }
-
-
-
-                                }
-
-
-
-
-
-                            }
-
-                        }
-                    }.execute();
-
-                    addContentCounter ++;
-
-
-
-                }
+                });
 
             }
             @Override
             public void handleFault( BackendlessFault fault )
             {
 
-
-            }
-
-
-        });*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        cardStack.setCallback(new SwipeDeck.SwipeDeckCallback() {
-            @Override
-            public void cardSwipedLeft(long stableId) {
-                Log.i("MainActivity", "card was swiped left, position in adapter: " + stableId);
-
-                //Boolean bo = prefs.getBoolean("pref_vi", true);
-
-                //int in = prefs.getInt("pref_distance", 2);
-
-                //boolean bo = prefs.getBoolean("dateActive_pref", false);
-
-                checkAdapter();
-
-
-                /*Toast.makeText(FindDateActivity.this, String.valueOf(bo),
-                        Toast.LENGTH_LONG).show();*/
-
-
-            }
-
-            @Override
-            public void cardSwipedRight(long stableId) {
-                Log.i("MainActivity", "card was swiped right, position in adapter: " + stableId);
-
-                checkAdapter();
-
+                Log.i("backendless", fault.getMessage().toString());
 
 
             }
 
 
-
-
-            //@Override
-            /*public boolean isDragEnabled(long itemId) {
-                return dragCheckbox.isChecked();
-            }*/
         });
 
-        cardStack.setLeftImage(R.id.left_image);
-        cardStack.setRightImage(R.id.right_image);
-
-
-
-        /*Button btn = (Button) findViewById(R.id.button_left);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cardStack.swipeTopCardLeft(500);
-
-            }
-        });
-        Button btn2 = (Button) findViewById(R.id.button_right);
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cardStack.swipeTopCardRight(180);
-            }
-        });
-
-        Button btn3 = (Button) findViewById(R.id.button_center);
-        btn3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                testData.add("a sample string.");
-//                adapter.notifyDataSetChanged();
-                cardStack.unSwipeCard();
-            }
-        });*/
-    }
-
-    private void checkAdapter() {
-
-
-
-        if (cardStack.getChildCount() == 1) {
-
-
-            Toast.makeText(getApplicationContext(), "swipedeckfinished",
-                    Toast.LENGTH_LONG).show();
-
-
-        }
 
 
 
 
 
-    }
-
-
-    private void setupToolbar() {
-        final ActionBar ab = getActionBarToolbar();
-        ab.setHomeAsUpIndicator(R.drawable.ic_menu);
-        ab.setDisplayHomeAsUpEnabled(true);
-        setTitle("");
     }
 
     @Override
@@ -403,72 +310,6 @@ public class FindDateActivity extends BaseActivity {
     }
 
 
-    /*public class SwipeDeckAdapter extends BaseAdapter {
-
-        private List<DeckContent.DeckItem> data;
-        private Context context;
-
-        public SwipeDeckAdapter(List<DeckContent.DeckItem> data, Context context) {
-            this.data = data;
-            this.context = context;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return data.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-
-            View v = convertView;
-            if (v == null) {
-                LayoutInflater inflater = getLayoutInflater();
-                // normally use a viewholder
-                v = inflater.inflate(R.layout.swipe_card, parent, false);
-            }
-            //((TextView) v.findViewById(R.id.textView2)).setText(data.get(position));
-            ImageView imageView = (ImageView) v.findViewById(R.id.offer_image);
-            //Bitmap bitmapholder = (Bitmap)getItem(position);
-
-
-
-            Bitmap bitmapholder = data.get(position).profile;
-            //Glide.with(context).load(bitmapholder).asBitmap().into(imageView);
-
-            imageView.setImageBitmap(bitmapholder);
-
-
-            //Picasso.with(context).load(bitmapholder).fit().centerCrop().into(imageView);
-            //TextView textView = (TextView) v.findViewById(R.id.sample_text);
-            //String item = (String)getItem(position);
-            //textView.setText(item);
-
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.i("Layer type: ", Integer.toString(v.getLayerType()));
-                    Log.i("Hardware Accel type:", Integer.toString(View.LAYER_TYPE_HARDWARE));
-                    /*Intent i = new Intent(v.getContext(), BlankActivity.class);
-                    v.getContext().startActivity(i);
-                }
-            });
-            return v;
-        }
-
-
-    }*/
-
     public class SwipeDeckAdapter extends BaseAdapter {
 
         private List<Dates> data;
@@ -484,6 +325,22 @@ public class FindDateActivity extends BaseActivity {
             return data.size();
         }
 
+        public String getUserId(int position) {
+
+
+            String theId = "";
+
+
+            for (BackendlessUser user : data.get(position).getOwner()) {
+
+                theId = user.getUserId();
+
+            }
+
+            return theId;
+
+        }
+
         @Override
         public Object getItem(int position) {
             return data.get(position);
@@ -503,21 +360,24 @@ public class FindDateActivity extends BaseActivity {
                 // normally use a viewholder
                 v = inflater.inflate(R.layout.swipe_card, parent, false);
             }
-            //((TextView) v.findViewById(R.id.textView2)).setText(data.get(position));
-            ImageView imageView = (ImageView) v.findViewById(R.id.offer_image);
-            //Bitmap bitmapholder = (Bitmap)getItem(position);
 
-            //Bitmap bitmapholder = data.get(position).profile;
-            //Glide.with(context).load(bitmapholder).asBitmap().into(imageView);
+            ImageView imageView = (ImageView) v.findViewById(R.id.offer_image);
 
             String userId = "";
 
             BackendlessUser[] owner = data.get(position).getOwner();
+
+            String name = "";
+
             for (BackendlessUser user : owner) {
 
                 userId = user.getUserId();
+                name = (String)user.getProperty("name") + ", ";
+
 
             }
+
+            name = name.substring(0, 1).toUpperCase() + name.substring(1);
 
             final String userIdSplit = StringUtil.splitString(userId);
 
@@ -546,21 +406,16 @@ public class FindDateActivity extends BaseActivity {
                     })
                     .fitCenter().into(imageView);
 
-            //imageView.setImageBitmap(bitmapholder);
+            TextView textView = (TextView) v.findViewById(R.id.textView1);
 
-
-            //Picasso.with(context).load(bitmapholder).fit().centerCrop().into(imageView);
-            //TextView textView = (TextView) v.findViewById(R.id.sample_text);
-            //String item = (String)getItem(position);
-            //textView.setText(item);
+            textView.setText(name);
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.i("Layer type: ", Integer.toString(v.getLayerType()));
                     Log.i("Hardware Accel type:", Integer.toString(View.LAYER_TYPE_HARDWARE));
-                    /*Intent i = new Intent(v.getContext(), BlankActivity.class);
-                    v.getContext().startActivity(i);*/
+
                 }
             });
             return v;
